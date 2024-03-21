@@ -1,4 +1,4 @@
-package com.example.object_recognition
+package efafi.mostafa.object_recognition
 
 import io.flutter.embedding.android.FlutterActivity
 
