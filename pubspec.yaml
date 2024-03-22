@@ -1,5 +1,5 @@
 name: object_recognition
-description: "A new Flutter project."
+description: "TensorFlow Lite provides an API for image classification using the MobileNet model."
 publish_to: 'none'
 version: 0.1.0
 
