@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:object_recognition/core/params/inference_model.dart';
+import 'package:object_recognition/features/detection_feature/data/models/inference_model.dart';
 
 void main() {
   group('isCameraFrame method', () {
