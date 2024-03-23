@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:isolate';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as image_lib;
-import 'package:object_recognition/core/params/inference_model.dart';
+import 'package:object_recognition/features/detection_feature/data/models/inference_model.dart';
 import 'package:object_recognition/core/utils/image_utils.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 
