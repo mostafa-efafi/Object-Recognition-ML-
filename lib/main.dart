@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:object_recognition/config/app_theme.dart';
 import 'package:object_recognition/features/detection_feature/persentation/pages/camera_page.dart';
 
 void main() {
@@ -11,8 +12,9 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: CameraPage(),
+    return MaterialApp(
+      theme: appThemeData(),
+      home: const CameraPage(),
     );
   }
 }
