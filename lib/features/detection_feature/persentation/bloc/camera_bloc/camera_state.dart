@@ -1,5 +1,14 @@
 part of 'camera_bloc.dart';
 
-sealed class CameraState {}
+class CameraState extends Equatable {
+  final List<MapEntry<String, double>>? classificationObj;
+  const CameraState({this.classificationObj});
 
-final class CameraInitial extends CameraState {}
+  CameraState copyWith({List<MapEntry<String, double>>? newClassificationObj}) {
+    return CameraState(
+        classificationObj: newClassificationObj ?? classificationObj);
+  }
+
+  @override
+  List<Object?> get props => [classificationObj];
+}
