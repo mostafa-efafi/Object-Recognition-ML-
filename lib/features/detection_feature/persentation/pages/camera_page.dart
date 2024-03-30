@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:object_recognition/config/languages/fa.dart';
 import 'package:object_recognition/features/detection_feature/persentation/bloc/camera_bloc/camera_bloc.dart';
 
 class CameraPage extends StatefulWidget {
@@ -15,9 +16,10 @@ class _CameraPageState extends State<CameraPage> {
   late CameraController cameraController;
   List<CameraDescription> allCameras = [];
   late CameraBloc bloc;
+  String _error = '';
 
   Future<bool> getCameras() async {
-    /// get camera and wait for android 13
+    // / get camera and wait for android 13
     bool camerasAvailable = false;
     List<CameraDescription> cameras = [];
 
@@ -36,7 +38,7 @@ class _CameraPageState extends State<CameraPage> {
     return _initCamera();
   }
 
-  Future<bool> _initCamera() async {
+  bool _initCamera() {
     final rearCamera = allCameras.firstWhere(
         (element) => element.lensDirection == CameraLensDirection.back,
         orElse: () => allCameras.first);
@@ -46,12 +48,31 @@ class _CameraPageState extends State<CameraPage> {
       enableAudio: false,
       imageFormatGroup: ImageFormatGroup.yuv420,
     );
-    cameraController.initialize().whenComplete(() {
-      bloc = CameraBloc(
-        cameraController: cameraController,
-      );
+    cameraController.initialize().then((_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {});
+    }).catchError((Object e) {
+      if (e is CameraException) {
+        switch (e.code) {
+          case 'CameraAccessDenied':
+            _error = e.toString();
+            break;
+          default:
+            _error = e.toString();
+            break;
+        }
+      }
     });
+
     return true;
+  }
+
+  @override
+  void initState() {
+    getCameras();
+    super.initState();
   }
 
   @override
@@ -63,18 +84,19 @@ class _CameraPageState extends State<CameraPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text(Fa.appBarTitle),
-      // ),
-      body: FutureBuilder<bool>(
-          future: getCameras(),
-          builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.data == true) {
-              return CameraPreview(cameraController);
-            } else {
-              return const CircularProgressIndicator();
-            }
-          }),
+      appBar: AppBar(
+        title: const Text(Fa.appBarTitle),
+      ),
+      body: Builder(builder: (context) {
+        try {
+          if (cameraController.value.isInitialized) {
+            return CameraPreview(cameraController);
+          }
+        } catch (e) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return  Center(child: Text(_error));
+      }),
     );
   }
 }
