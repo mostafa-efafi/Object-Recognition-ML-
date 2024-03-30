@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:object_recognition/config/languages/fa.dart';
 import 'package:object_recognition/features/detection_feature/persentation/bloc/camera_bloc/camera_bloc.dart';
+import 'package:object_recognition/features/detection_feature/persentation/widgets/list_of_names.dart';
 
 class CameraPage extends StatefulWidget {
   const CameraPage({super.key});
@@ -18,7 +21,7 @@ class _CameraPageState extends State<CameraPage> {
   late CameraBloc bloc;
   String _error = '';
 
-  Future<bool> getCameras() async {
+  Future<bool> _getCameras() async {
     // / get camera and wait for android 13
     bool camerasAvailable = false;
     List<CameraDescription> cameras = [];
@@ -39,14 +42,16 @@ class _CameraPageState extends State<CameraPage> {
   }
 
   bool _initCamera() {
+    /// get first [back] camera
     final rearCamera = allCameras.firstWhere(
         (element) => element.lensDirection == CameraLensDirection.back,
         orElse: () => allCameras.first);
     cameraController = CameraController(
       rearCamera,
-      ResolutionPreset.high,
+      ResolutionPreset.medium,
       enableAudio: false,
-      imageFormatGroup: ImageFormatGroup.yuv420,
+      imageFormatGroup:
+          Platform.isIOS ? ImageFormatGroup.bgra8888 : ImageFormatGroup.yuv420,
     );
     cameraController.initialize().then((_) {
       if (!mounted) {
@@ -65,38 +70,52 @@ class _CameraPageState extends State<CameraPage> {
         }
       }
     });
-
     return true;
   }
 
   @override
   void initState() {
-    getCameras();
+    _getCameras();
     super.initState();
   }
 
   @override
   void dispose() {
     bloc.dispose();
+    cameraController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(Fa.appBarTitle),
-      ),
-      body: Builder(builder: (context) {
-        try {
-          if (cameraController.value.isInitialized) {
-            return CameraPreview(cameraController);
+    return BlocProvider(
+      create: (context) => CameraBloc(),
+      child: Scaffold(
+        backgroundColor: Colors.grey.shade800,
+        appBar: AppBar(
+          centerTitle: true,
+          backgroundColor: Theme.of(context).primaryColor,
+          title: const Text(
+            Fa.appBarTitle,
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+        body: Builder(builder: (bContext) {
+          try {
+            if (cameraController.value.isInitialized) {
+              BlocProvider.of<CameraBloc>(bContext)
+                  .add(StartDetect(cameraController));
+              return Center(child: CameraPreview(cameraController));
+            }
+          } catch (e) {
+            return const Center(child: CircularProgressIndicator());
           }
-        } catch (e) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        return  Center(child: Text(_error));
-      }),
+          return Center(child: Text(_error));
+        }),
+
+        /// a list of [detected] [objects]
+        bottomSheet: const ListOfNames(),
+      ),
     );
   }
 }
