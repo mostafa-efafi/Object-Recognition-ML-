@@ -1,0 +1,8 @@
+This project is a mobile application for recognizing objects using machine learning. This app uses deep learning models to identify objects in phone camera images.
+
+Features and Components:
+    -Fast detection of objects (15 times per second)
+    -Translated into Persian
+    -Identifying objects with their probability percentage
+    -Written in Dart language and Flutter framework
+    -Available for Android and iOS
