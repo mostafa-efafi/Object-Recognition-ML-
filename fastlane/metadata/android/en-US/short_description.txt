@@ -1,0 +1,1 @@
+ This application identifies various objects with a machine learning model from .tflite file using a mobile phone camera.
